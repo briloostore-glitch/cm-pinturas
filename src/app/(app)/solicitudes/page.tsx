@@ -2,6 +2,7 @@ import { requireModule } from '@/lib/auth'
 import { fdate } from '@/lib/format'
 import { convertRequest, discardRequest, deleteRequest } from './actions'
 import DeleteButton from './DeleteButton'
+import SolicitudesAlert from './SolicitudesAlert'
 
 type Req = {
   id: string; created_at: string; status: string; tipo_inmueble: string | null; tipo_otro: string | null
@@ -18,10 +19,12 @@ export default async function Solicitudes({ searchParams }: { searchParams: Prom
   const sp = await searchParams
   const { data } = await supabase.from('requests').select('*').order('created_at', { ascending: false }).limit(200)
   const rows = (data ?? []) as Req[]
+  const ultima = rows.filter((r) => r.status === 'nueva').map((r) => r.created_at).sort().pop() ?? ''
 
   return (
     <>
       <h1 className="text-2xl font-bold text-navy mb-4">Solicitudes web</h1>
+      <SolicitudesAlert ultima={ultima} />
       {sp.error && <div className="card mb-4 text-red-600">{sp.error}</div>}
       <div className="space-y-3">
         {rows.map((r) => (
@@ -45,8 +48,8 @@ export default async function Solicitudes({ searchParams }: { searchParams: Prom
                 ))}
               </p>
             )}
-            {r.status === 'nueva' && (
-              <div className="flex gap-2 mt-3">
+            <div className="flex gap-2 mt-3">
+              {r.status === 'nueva' && (<>
                 <form action={convertRequest}>
                   <input type="hidden" name="id" value={r.id} />
                   <button className="btn btn-o">Crear cliente{r.visita_diagnostico ? ' y visita' : ''}</button>
@@ -54,13 +57,12 @@ export default async function Solicitudes({ searchParams }: { searchParams: Prom
                 <form action={discardRequest}>
                   <input type="hidden" name="id" value={r.id} />
                   <button className="btn btn-g">Descartar</button>
+                </form></>)}
+                <form action={deleteRequest}>
+                  <input type="hidden" name="id" value={r.id} />
+                  <DeleteButton />
                 </form>
-              </div>
-            )}
-            <form action={deleteRequest} className="mt-3">
-              <input type="hidden" name="id" value={r.id} />
-              <DeleteButton />
-            </form>
+            </div>
           </div>
         ))}
         {!rows.length && <p className="text-slate-500">Aun no hay solicitudes.</p>}
