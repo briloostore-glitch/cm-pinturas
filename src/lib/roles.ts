@@ -27,6 +27,8 @@ export const NAV: NavItem[] = [
   { slug: 'solicitudes', label: 'Solicitudes', icon: '', roles: [A, S, C], phase: 4 },
   { slug: 'visitas', label: 'Visitas técnicas', icon: '', roles: [A, S, C], phase: 5 },
   { slug: 'trabajos', label: 'Trabajos', icon: '', roles: [A, S, T], phase: 5 },
+  { slug: 'avances', label: 'Avances de obra', icon: '', roles: [A, S, T, K], phase: 5 },
+  { slug: 'cuadrillas', label: 'Cuadrillas y accesos', icon: '', roles: [A], phase: 5 },
   { slug: 'inventario', label: 'Inventario', icon: '', roles: [A, W], phase: 6 },
   { slug: 'proveedores', label: 'Proveedores', icon: '', roles: [A, W], phase: 6 },
   { slug: 'personal', label: 'Personal', icon: '', roles: [A, K], phase: 7 },
