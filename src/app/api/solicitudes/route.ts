@@ -12,6 +12,24 @@ const num = (v: unknown) => {
   return v === null || v === undefined || v === '' || Number.isNaN(n) ? null : n
 }
 
+const esc = (t: string) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+
+async function avisoTelegram(text: string) {
+  const token = process.env.TELEGRAM_BOT_TOKEN
+  const chat = process.env.TELEGRAM_CHAT_ID
+  if (!token || !chat) return
+  try {
+    const res = await fetch('https://api.telegram.org/bot' + token + '/sendMessage', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: chat, text, parse_mode: 'HTML' }),
+      signal: AbortSignal.timeout(5000),
+    })
+    if (!res.ok) console.error('telegram:', res.status)
+  } catch (e) {
+    console.error('telegram:', e instanceof Error ? e.message : e)
+  }
+}
 function autorizado(got: string | null) {
   const want = process.env.SOLICITUDES_SECRET
   if (!want || !got) return false
@@ -41,7 +59,7 @@ export async function POST(req: Request) {
     ? rec.fotos.filter((u): u is string => typeof u === 'string' && u.startsWith('https://')).slice(0, 4)
     : []
 
-  const { error } = await createAdminClient().from('requests').upsert(
+  const { data: nuevo, error } = await createAdminClient().from('requests').upsert(
     {
       source_id: String(rec.id),
       tipo_inmueble: s(rec.tipo_inmueble, 80) || null,
@@ -60,10 +78,23 @@ export async function POST(req: Request) {
       fotos,
     },
     { onConflict: 'source_id', ignoreDuplicates: true }
-  )
+  ).select('id')
   if (error) {
     console.error('solicitudes:', error.message)
     return NextResponse.json({ error: 'no se pudo guardar' }, { status: 500 })
+  }
+  if (nuevo && nuevo.length) {
+    await avisoTelegram(
+      '<b>Nueva solicitud web CM</b>\n' +
+        'Cliente: ' + esc(s(rec.nombre, 120) || '-') + '\n' +
+        'Celular: ' + esc(s(rec.celular, 40) || '-') + '\n' +
+        'Servicio: ' + esc(s(rec.servicio, 120) || '-') + '\n' +
+        'Inmueble: ' + esc((s(rec.tipo_inmueble, 80) === 'Otro' ? s(rec.tipo_otro, 120) : s(rec.tipo_inmueble, 80)) || '-') +
+        (num(rec.area_m2) != null ? ' | ' + num(rec.area_m2) + ' m2' : '') + '\n' +
+        'Ciudad: ' + esc((s(rec.ciudad, 80) === 'Otra' ? s(rec.ciudad_otra, 80) : s(rec.ciudad, 80)) || '-') + '\n' +
+        'Direccion: ' + esc(s(rec.direccion, 200) || '-') +
+        (rec.visita_diagnostico === true ? '\n<b>Pidio visita tecnica</b>' : '')
+    )
   }
   return NextResponse.json({ ok: true })
 }
