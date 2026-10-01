@@ -2,7 +2,7 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 // Rutas que se pueden ver sin iniciar sesión (después se agrega /solicitar)
-const PUBLIC = ['/login']
+const PUBLIC = ['/login', '/api/solicitudes']
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request })
