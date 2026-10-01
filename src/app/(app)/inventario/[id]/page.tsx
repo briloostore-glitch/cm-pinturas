@@ -74,7 +74,7 @@ export default async function MaterialDetalle({ params, searchParams }: { params
 
       <form action={updateMaterial} className="card">
         <input type="hidden" name="id" value={m.id} />
-        <MaterialFields m={m} suppliers={provs ?? []} />
+        <MaterialFields m={m} suppliers={provs ?? []} imagenUrl={m.image_path ? supabase.storage.from('materiales').getPublicUrl(m.image_path).data.publicUrl : null} />
         <button type="submit" className="btn btn-g">Guardar datos del material</button>
       </form>
     </>

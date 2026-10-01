@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { requireModule } from '@/lib/auth'
 import { toMsg } from '@/lib/format'
+import { subirImagen, quitarArchivo } from '@/lib/imagen'
 
 const txt = (fd: FormData, k: string) => String(fd.get(k) ?? '').trim()
 const num = (fd: FormData, k: string) => { const n = Number(fd.get(k)); return Number.isFinite(n) && n >= 0 ? n : 0 }
@@ -25,7 +26,10 @@ export async function createMaterial(fd: FormData) {
   const d = datosMaterial(fd)
   if (!d.name) volver('/inventario/nuevo', 'Escribe el nombre del material')
   // El stock empieza en 0; el stock inicial entra como movimiento para que lo sume el trigger.
-  const { data, error } = await supabase.from('materials').insert({ ...d, stock: 0, active: true }).select('id').single()
+  const img = await subirImagen(supabase, fd)
+  if (img.error) volver('/inventario/nuevo', img.error)
+  const { data, error } = await supabase.from('materials').insert({ ...d, stock: 0, active: true, ...(img.subido ? { image_path: img.subido } : {}) }).select('id').single()
+  if (error || !data) await quitarArchivo(supabase, img.subido)
   if (error || !data) volver('/inventario/nuevo', 'No se pudo crear el material: ' + (error?.message ?? ''))
   const inicial = num(fd, 'initial_stock')
   if (inicial > 0) {
@@ -42,8 +46,16 @@ export async function updateMaterial(fd: FormData) {
   const id = txt(fd, 'id')
   const d = datosMaterial(fd)
   if (!d.name) volver(`/inventario/${id}`, 'El nombre no puede quedar vacío')
-  const { error } = await supabase.from('materials').update({ ...d, active: fd.get('active') === 'on' }).eq('id', id)
-  if (error) volver(`/inventario/${id}`, 'No se pudo guardar: ' + error.message)
+  const img = await subirImagen(supabase, fd)
+  if (img.error) volver(`/inventario/${id}`, img.error)
+  const { data: act } = await supabase.from('materials').select('image_path').eq('id', id).single()
+  const cambios = { ...d, active: fd.get('active') === 'on', ...(img.subido ? { image_path: img.subido } : img.quitar ? { image_path: null } : {}) }
+  const { error } = await supabase.from('materials').update(cambios).eq('id', id)
+  if (error) {
+    await quitarArchivo(supabase, img.subido)
+    volver(`/inventario/${id}`, 'No se pudo guardar: ' + error.message)
+  }
+  if (img.subido || img.quitar) await quitarArchivo(supabase, act?.image_path)
   revalidatePath(`/inventario/${id}`)
   redirect(`/inventario/${id}`)
 }

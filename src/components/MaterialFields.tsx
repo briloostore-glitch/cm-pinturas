@@ -1,12 +1,15 @@
+import ImageInput from '@/components/ImageInput'
+
 type M = {
   name?: string; category?: string | null; brand?: string | null; unit?: string | null
   cost_price?: number | null; suggested_price?: number | null; min_stock?: number | null
   supplier_id?: string | null; active?: boolean
 }
 
-export default function MaterialFields({ m, suppliers, nuevo }: { m?: M; suppliers: { id: string; company: string }[]; nuevo?: boolean }) {
+export default function MaterialFields({ m, suppliers, nuevo, imagenUrl }: { m?: M; suppliers: { id: string; company: string }[]; nuevo?: boolean; imagenUrl?: string | null }) {
   return (
     <>
+      <ImageInput url={imagenUrl ?? null} />
       <div className="grid-f">
         <div><label className="lbl">Nombre</label><input name="name" className="inp" defaultValue={m?.name ?? ''} required /></div>
         <div><label className="lbl">Categoría</label><input name="category" className="inp" defaultValue={m?.category ?? ''} /></div>

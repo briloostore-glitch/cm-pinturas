@@ -6,7 +6,7 @@ export default async function Inventario({ searchParams }: { searchParams: Promi
   const { q, bajo } = await searchParams
   const { supabase } = await requireModule('inventario')
   let query = supabase.from('materials')
-    .select('id,name,category,brand,unit,stock,min_stock,cost_price,active,supplier_id')
+    .select('*')
     .order('name').limit(500)
   if (q) query = query.ilike('name', `%${q}%`)
   const [{ data }, { data: provs }] = await Promise.all([query, supabase.from('suppliers').select('id,company')])
@@ -14,6 +14,7 @@ export default async function Inventario({ searchParams }: { searchParams: Promi
   const todos = data ?? []
   const bajos = todos.filter((m) => m.active && Number(m.stock) <= Number(m.min_stock))
   const rows = bajo === '1' ? bajos : todos
+  const foto = (p: string) => supabase.storage.from('materiales').getPublicUrl(p).data.publicUrl
 
   return (
     <>
@@ -35,7 +36,7 @@ export default async function Inventario({ searchParams }: { searchParams: Promi
               const low = m.active && Number(m.stock) <= Number(m.min_stock)
               return (
                 <tr key={m.id}>
-                  <td>{m.name}{m.brand ? <span className="text-slate-500"> · {m.brand}</span> : null}</td>
+                  <td><div className="flex items-center gap-2">{m.image_path ? <img src={foto(m.image_path)} alt={m.name} className="w-10 h-10 rounded object-cover border" /> : <div className="w-10 h-10 rounded bg-slate-100" />}<span>{m.name}{m.brand ? <span className="text-slate-500"> · {m.brand}</span> : null}</span></div></td>
                   <td>{m.category ?? '-'}</td>
                   <td>{m.supplier_id ? sup.get(m.supplier_id) ?? '-' : '-'}</td>
                   <td>{Number(m.stock)} {m.unit ?? ''}</td>
