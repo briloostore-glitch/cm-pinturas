@@ -10,7 +10,7 @@ const ESTADOS_VISITA = ['solicitud_recibida', 'pago_pendiente', 'pago_recibido',
 const SIN_PAGO = ['solicitud_recibida', 'pago_pendiente', 'cancelada']
 const METODOS = ['efectivo', 'transferencia', 'nequi', 'daviplata', 'tarjeta', 'otro']
 
-const fail = (id: string, m: string): never => redirect(`/visitas/${id}?error=` + toMsg(m))
+function fail(id: string, m: string): never { return redirect(`/visitas/${id}?error=` + toMsg(m)) }
 const hoy = () => new Date().toLocaleDateString('en-CA', { timeZone: 'America/Bogota' })
 
 export async function createVisit(fd: FormData) {

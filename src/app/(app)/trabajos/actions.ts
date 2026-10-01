@@ -7,14 +7,14 @@ import { toMsg } from '@/lib/format'
 
 const ESTADOS = ['pendiente', 'programado', 'en_ejecucion', 'pausado', 'terminado', 'cancelado']
 
-const fail = (id: string, m: string): never => redirect(`/trabajos/${id}?error=` + toMsg(m))
+function fail(id: string, m: string): never { return redirect(`/trabajos/${id}?error=` + toMsg(m)) }
 const num = (fd: FormData, k: string) => { const n = Number(fd.get(k)); return n >= 0 ? n : 0 }
 const fecha = (fd: FormData, k: string) => String(fd.get(k) ?? '') || null
 
 export async function createWorkOrder(fd: FormData) {
   const { supabase } = await requireModule('trabajos')
   const quoteId = String(fd.get('quote_id') ?? '')
-  const nueva = (m: string): never => redirect('/trabajos/nuevo?error=' + toMsg(m))
+  function nueva(m: string): never { return redirect('/trabajos/nuevo?error=' + toMsg(m)) }
   if (!quoteId) nueva('Elige una cotización aprobada')
   const { data: q } = await supabase.from('quotes').select('id,client_id,total,status').eq('id', quoteId).single()
   if (!q) nueva('No se encontró la cotización')
