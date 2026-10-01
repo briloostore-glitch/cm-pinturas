@@ -1,6 +1,6 @@
-import { redirect } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import type { Role } from '@/lib/roles'
+import { NAV, homeFor, type Role } from '@/lib/roles'
 
 export type Profile = { id: string; full_name: string | null; email: string | null; role: Role; active: boolean }
 
@@ -12,4 +12,13 @@ export async function getSession() {
   const { data } = await supabase.from('profiles').select('id,full_name,email,role,active').eq('id', user.id).single()
   const profile = data && data.active ? (data as Profile) : null
   return { supabase, user, profile }
+}
+
+// Igual que getSession, pero además exige que el rol pueda entrar a ese módulo
+export async function requireModule(slug: string) {
+  const s = await getSession()
+  if (!s.profile) notFound()
+  const item = NAV.find((n) => n.slug === slug)
+  if (item && !item.roles.includes(s.profile.role)) redirect(homeFor(s.profile.role))
+  return { supabase: s.supabase, profile: s.profile }
 }

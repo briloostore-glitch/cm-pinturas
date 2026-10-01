@@ -5,8 +5,49 @@
   --color-accent: #f08a24;
 }
 
-body {
-  background: #f3f5f9;
-  color: #14233d;
-  font-family: "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+body { background: #f3f5f9; color: #14233d; font-family: "Segoe UI", system-ui, -apple-system, Roboto, sans-serif; }
+
+.card { background: #fff; border: 1px solid #e2e8f0; border-radius: .75rem; padding: 1rem; margin-bottom: 1rem; }
+.inp { width: 100%; border: 1px solid #cbd5e1; border-radius: .5rem; padding: .4rem .6rem; background: #fff; color: #14233d; }
+.lbl { display: block; font-size: .75rem; color: #64748b; margin-bottom: .15rem; }
+.btn { background: #1e3a66; color: #fff; border-radius: .5rem; padding: .45rem .9rem; font-weight: 600; cursor: pointer; display: inline-block; font-size: .875rem; }
+.btn-o { background: #f08a24; color: #1b1205; }
+.btn-g { background: #fff; color: #14233d; border: 1px solid #cbd5e1; }
+.grid-f { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: .75rem; margin-bottom: .75rem; }
+.tbl { width: 100%; font-size: .875rem; border-collapse: collapse; }
+.tbl th { text-align: left; color: #64748b; font-size: .75rem; padding: .5rem; border-bottom: 1px solid #e2e8f0; white-space: nowrap; }
+.tbl td { padding: .5rem; border-bottom: 1px solid #f1f5f9; }
+.err { background: #fef2f2; color: #b91c1c; border-radius: .5rem; padding: .5rem .75rem; margin-bottom: 1rem; font-size: .875rem; }
+.badge { display: inline-block; border-radius: 999px; padding: .1rem .6rem; font-size: .75rem; background: #e2e8f0; }
+.badge-aprobada { background: #dcfce7; color: #166534; }
+.badge-rechazada { background: #fee2e2; color: #991b1b; }
+.badge-pendiente { background: #fef3c7; color: #92400e; }
+
+/* ---- Hoja de cotización impresa ---- */
+.dc { font: 11px/1.45 Arial, Helvetica, sans-serif; color: #222; max-width: 760px; margin: auto; background: #fff; padding: 16px; }
+.dc table { width: 100%; border-collapse: collapse; }
+.dc td, .dc th { border: 1px solid #c5cedd; padding: 4px 6px; height: 21px; }
+.dh { display: flex; gap: 14px; align-items: flex-start; padding-bottom: 8px; border-bottom: 4px solid #f08a24; margin-bottom: 14px; }
+.dh img { height: 80px; width: auto; }
+.cn { font-size: 19px; font-weight: 700; color: #1e3a66; }
+.ct { font-size: 22px; font-weight: 700; color: #f08a24; text-align: right; }
+.dr { min-width: 170px; }
+.dr td { border: 0 !important; padding: 2px 4px !important; }
+.dr td:first-child { color: #1e3a66; text-align: right; font-weight: 700; }
+.dr td:last-child { text-align: right; }
+.dc .nv { background: #1e3a66; color: #fff; font-weight: 700; border-color: #1e3a66; }
+.dc .lb { background: #eef1f7; color: #1e3a66; font-weight: 700; width: 90px; }
+.dc th { background: #1e3a66; color: #fff; border-color: #1e3a66; }
+.dc .rb { text-align: right; color: #1e3a66; font-weight: 700; }
+.gp { height: 14px; }
+.sg { display: flex; gap: 40px; margin-top: 46px; text-align: center; }
+.sg > div { flex: 1; border-top: 1px solid #222; padding-top: 3px; position: relative; }
+.sg img { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); height: 54px; width: auto; }
+.pie { border-top: 4px solid #f08a24; margin-top: 14px; padding-top: 4px; text-align: center; color: #1e3a66; font-weight: 700; }
+
+@media print {
+  @page { margin: 12mm; }
+  body { background: #fff; }
+  .dc { padding: 0; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }

@@ -13,13 +13,13 @@ export default function Sidebar({ items, name, role }: { items: Item[]; name: st
   const [open, setOpen] = useState(false)
   return (
     <>
-      <div className="md:hidden flex items-center gap-3 bg-navy text-white px-4 py-3 sticky top-0 z-20">
+      <div className="print:hidden md:hidden flex items-center gap-3 bg-navy text-white px-4 py-3 sticky top-0 z-20">
         <button onClick={() => setOpen(!open)} aria-label="Abrir menú" className="text-2xl leading-none">☰</button>
         <b>CM Pinturas y Mantenimiento</b>
       </div>
       {open && <div className="fixed inset-0 bg-black/40 z-30 md:hidden" onClick={() => setOpen(false)} />}
       <aside
-        className={`bg-navy text-white w-64 shrink-0 p-4 flex flex-col fixed md:sticky top-0 h-screen z-40 transition-transform ${
+        className={`print:hidden bg-navy text-white w-64 shrink-0 p-4 flex flex-col fixed md:sticky top-0 h-screen z-40 transition-transform ${
           open ? 'translate-x-0' : '-translate-x-full'
         } md:translate-x-0`}
       >
