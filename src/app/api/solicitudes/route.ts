@@ -84,16 +84,25 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'no se pudo guardar' }, { status: 500 })
   }
   if (nuevo && nuevo.length) {
+    const inmueble = (s(rec.tipo_inmueble, 80) === 'Otro' ? s(rec.tipo_otro, 120) : s(rec.tipo_inmueble, 80)) || '-'
+    const ciudad = (s(rec.ciudad, 80) === 'Otra' ? s(rec.ciudad_otra, 80) : s(rec.ciudad, 80)) || '-'
+    const area = num(rec.area_m2)
+    const msg = s(rec.mensaje, 2000)
     await avisoTelegram(
-      '<b>Nueva solicitud web CM</b>\n' +
-        'Cliente: ' + esc(s(rec.nombre, 120) || '-') + '\n' +
-        'Celular: ' + esc(s(rec.celular, 40) || '-') + '\n' +
-        'Servicio: ' + esc(s(rec.servicio, 120) || '-') + '\n' +
-        'Inmueble: ' + esc((s(rec.tipo_inmueble, 80) === 'Otro' ? s(rec.tipo_otro, 120) : s(rec.tipo_inmueble, 80)) || '-') +
-        (num(rec.area_m2) != null ? ' | ' + num(rec.area_m2) + ' m2' : '') + '\n' +
-        'Ciudad: ' + esc((s(rec.ciudad, 80) === 'Otra' ? s(rec.ciudad_otra, 80) : s(rec.ciudad, 80)) || '-') + '\n' +
-        'Direccion: ' + esc(s(rec.direccion, 200) || '-') +
-        (rec.visita_diagnostico === true ? '\n<b>Pidio visita tecnica</b>' : '')
+      '<b>CM Pinturas y Mantenimiento</b>\n' +
+        '<b>Solicitud de cotización</b>\n\n' +
+        '<b>Cliente:</b> ' + esc(s(rec.nombre, 120) || '-') + '\n' +
+        '<b>Celular:</b> ' + esc(s(rec.celular, 40) || '-') + '\n' +
+        '<b>Correo:</b> ' + esc(s(rec.correo, 160) || '-') + '\n\n' +
+        '<b>Servicio:</b> ' + esc(s(rec.servicio, 120) || '-') + '\n' +
+        '<b>Tipo de inmueble:</b> ' + esc(inmueble) + '\n' +
+        '<b>Área:</b> ' + (area != null ? area + ' m2' : '-') + '\n' +
+        '<b>Humedad:</b> ' + (rec.humedad === true ? 'Sí' : 'No') + '\n\n' +
+        '<b>Ciudad:</b> ' + esc(ciudad) + '\n' +
+        '<b>Dirección:</b> ' + esc(s(rec.direccion, 200) || '-') + '\n' +
+        '<b>Visita técnica:</b> ' + (rec.visita_diagnostico === true ? 'Sí, la pidió' : 'No') +
+        (msg ? '\n\n<b>Mensaje:</b> ' + esc(msg) : '') +
+        (fotos.length ? '\n\n<b>Fotos:</b>\n' + fotos.map((u, i) => (i + 1) + '. ' + esc(u)).join('\n') : '')
     )
   }
   return NextResponse.json({ ok: true })
