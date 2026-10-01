@@ -1,0 +1,43 @@
+/* Hojas imprimibles: cuenta de cobro y carta con membrete */
+.dc, .lt { font: 11px/1.45 Arial, Helvetica, sans-serif; color: #222; max-width: 760px; margin: auto; background: #fff; padding: 16px; }
+.dc table { width: 100%; border-collapse: collapse; }
+.dc td, .dc th { border: 1px solid #c5cedd; padding: 4px 6px; height: 21px; }
+.dh { display: flex; gap: 14px; align-items: flex-start; padding-bottom: 8px; border-bottom: 4px solid #f08a24; margin-bottom: 14px; }
+.dh img { height: 80px; width: auto; }
+.cn { font-size: 19px; font-weight: 700; color: #1e3a66; }
+.ct { font-size: 22px; font-weight: 700; color: #f08a24; text-align: right; }
+.dr { min-width: 190px; }
+.dr td { border: 0 !important; padding: 2px 4px !important; }
+.dr td:first-child { color: #1e3a66; text-align: right; font-weight: 700; }
+.dr td:last-child { text-align: right; }
+.dc .nv { background: #1e3a66; color: #fff; font-weight: 700; border-color: #1e3a66; }
+.dc .lb { background: #eef1f7; color: #1e3a66; font-weight: 700; width: 90px; }
+.dc th { background: #1e3a66; color: #fff; border-color: #1e3a66; }
+.dc .rb { text-align: right; color: #1e3a66; font-weight: 700; }
+.gp { height: 14px; }
+.sg { display: flex; gap: 40px; margin-top: 66px; text-align: center; }
+.sg > div { flex: 1; border-top: 1px solid #222; padding-top: 3px; position: relative; }
+.sg img { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); height: 54px; width: auto; }
+.pie { border-top: 4px solid #f08a24; margin-top: 14px; padding-top: 4px; text-align: center; color: #1e3a66; font-weight: 700; }
+
+/* Carta */
+.lt { font-size: 13px; line-height: 1.55; padding: 24px 40px; min-height: 262mm; display: flex; flex-direction: column; }
+.lt .dh { margin-bottom: 34px; }
+.lt .dh .cn { font-size: 22px; }
+.lt .dh .sm { font-size: 12px; line-height: 1.35; }
+.lt p { margin: 0 0 13px; text-align: justify; }
+.lt .sig { position: relative; margin-top: 4px; height: 56px; width: 300px; border-bottom: 1px solid #222; }
+.lt .sig img { position: absolute; left: 50px; bottom: 2px; height: 52px; width: auto; }
+.lt .lf { margin-top: auto; border-top: 3px solid #f08a24; padding-top: 6px; text-align: center; }
+.lt .lf b { display: block; color: #1e3a66; font-size: 12px; }
+.lt .lf span { color: #666; font-size: 10px; }
+
+@media print {
+  @page { margin: 12mm; }
+  body { background: #fff !important; }
+  .min-h-screen > :not(main) { display: none !important; }
+  main { padding: 0 !important; }
+  .dc, .lt { padding: 0; }
+  .lt { padding: 0 6mm; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}

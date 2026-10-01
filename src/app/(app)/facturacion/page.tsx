@@ -2,6 +2,7 @@ import { guard } from '@/lib/guard'
 import { ui } from '@/lib/ui'
 import { cop, fdate, label, today, METHODS } from '@/lib/money'
 import ConfirmAction from '@/components/ConfirmAction'
+import FacturacionTabs from '@/components/FacturacionTabs'
 import { createPayment, deletePayment } from './actions'
 
 type Name = { first_name: string; last_name: string | null } | null
@@ -38,8 +39,9 @@ export default async function Pagos({ searchParams }: { searchParams: Promise<{ 
 
   return (
     <>
+      <FacturacionTabs active="pagos" />
       <h1 className={ui.h1}>Facturación y pagos</h1>
-      <p className="text-slate-500 mb-4">Aquí se registran anticipos, abonos y pagos finales. Las facturas se agregan en la Fase 8.</p>
+      <p className="text-slate-500 mb-4">Aquí se registran anticipos, abonos y pagos finales. Las cuentas de cobro y las cartas están en las pestañas de arriba.</p>
       {error && <div className={ui.err}>{error}</div>}
       <div className="grid gap-3 grid-cols-3 mb-4">
         {kpis.map(([l, val]) => <div key={l} className={ui.kpi}><div className="text-xs text-slate-500">{l}</div><div className="text-lg font-bold">{val}</div></div>)}
