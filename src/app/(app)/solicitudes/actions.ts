@@ -66,3 +66,13 @@ export async function discardRequest(fd: FormData) {
     .eq('id', String(fd.get('id') ?? '')).eq('status', 'nueva')
   revalidatePath('/solicitudes')
 }
+
+export async function deleteRequest(fd: FormData) {
+  const { supabase } = await requireModule('solicitudes')
+  const id = String(fd.get('id') ?? '')
+  if (!id) back('Solicitud no valida')
+  const { data, error } = await supabase.from('requests').delete().eq('id', id).select('id')
+  if (error) back('No se pudo eliminar: ' + error.message)
+  if (!data || !data.length) back('No se pudo eliminar: sin permiso o ya no existe')
+  revalidatePath('/solicitudes')
+}

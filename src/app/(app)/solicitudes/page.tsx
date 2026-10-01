@@ -1,6 +1,7 @@
 import { requireModule } from '@/lib/auth'
 import { fdate } from '@/lib/format'
-import { convertRequest, discardRequest } from './actions'
+import { convertRequest, discardRequest, deleteRequest } from './actions'
+import DeleteButton from './DeleteButton'
 
 type Req = {
   id: string; created_at: string; status: string; tipo_inmueble: string | null; tipo_otro: string | null
@@ -56,6 +57,10 @@ export default async function Solicitudes({ searchParams }: { searchParams: Prom
                 </form>
               </div>
             )}
+            <form action={deleteRequest} className="mt-3">
+              <input type="hidden" name="id" value={r.id} />
+              <DeleteButton />
+            </form>
           </div>
         ))}
         {!rows.length && <p className="text-slate-500">Aun no hay solicitudes.</p>}
