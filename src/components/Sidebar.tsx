@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { logout } from '@/app/login/actions'
+import Icon from '@/components/Icon'
 
 type Item = { slug: string; label: string; icon: string }
 
@@ -14,7 +15,7 @@ export default function Sidebar({ items, name, role }: { items: Item[]; name: st
   return (
     <>
       <div className="print:hidden md:hidden flex items-center gap-3 bg-navy text-white px-4 py-3 sticky top-0 z-20">
-        <button onClick={() => setOpen(!open)} aria-label="Abrir menú" className="text-2xl leading-none">☰</button>
+        <button onClick={() => setOpen(!open)} aria-label="Abrir menú" className="leading-none"><Icon name="menu" className="w-6 h-6" /></button>
         <b>CM Pinturas y Mantenimiento</b>
       </div>
       {open && <div className="fixed inset-0 bg-black/40 z-30 md:hidden" onClick={() => setOpen(false)} />}
@@ -37,7 +38,7 @@ export default function Sidebar({ items, name, role }: { items: Item[]; name: st
                 onClick={() => setOpen(false)}
                 className={`block rounded-lg px-3 py-2 text-sm ${on ? 'bg-accent text-black font-semibold' : 'text-slate-200 hover:bg-white/10'}`}
               >
-                {i.icon} {i.label}
+                <span className="flex items-center gap-2"><Icon name={i.slug} className="w-5 h-5 shrink-0" /><span>{i.label}</span></span>
               </Link>
             )
           })}
