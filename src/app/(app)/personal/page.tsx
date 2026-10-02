@@ -2,7 +2,7 @@ import { guard } from '@/lib/guard'
 import { ui } from '@/lib/ui'
 import { cop, POSITIONS, PAY_TYPES } from '@/lib/money'
 import ConfirmAction from '@/components/ConfirmAction'
-import { createEmployee, deleteEmployee, updateEmployee } from './actions'
+import { createEmployee, deleteEmployee, updateEmployee, updateEmployeeFicha } from './actions'
 
 export default async function Personal({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
   const { error } = await searchParams
@@ -27,6 +27,12 @@ export default async function Personal({ searchParams }: { searchParams: Promise
           <div><label className={ui.lbl}>Valor diario (COP)</label><input name="daily_rate" type="number" min="0" className={ui.inp} /></div>
           <div><label className={ui.lbl}>Valor por trabajo (COP)</label><input name="job_rate" type="number" min="0" className={ui.inp} /></div>
           <div><label className={ui.lbl}>Fecha de ingreso</label><input name="hired_at" type="date" className={ui.inp} /></div>
+          <div><label className={ui.lbl}>Banco</label><input name="bank_name" className={ui.inp} placeholder="Ej: Bancolombia" /></div>
+          <div><label className={ui.lbl}>Tipo de cuenta</label><select name="account_type" defaultValue="" className={ui.inp}><option value="">Sin definir</option><option value="Ahorros">Ahorros</option><option value="Corriente">Corriente</option><option value="Nequi">Nequi</option><option value="Daviplata">Daviplata</option></select></div>
+          <div><label className={ui.lbl}>N&uacute;mero de cuenta</label><input name="account_number" className={ui.inp} /></div>
+          <div><label className={ui.lbl}>EPS (salud)</label><input name="eps" className={ui.inp} /></div>
+          <div><label className={ui.lbl}>Fondo de pensi&oacute;n</label><input name="pension_fund" className={ui.inp} /></div>
+          <div><label className={ui.lbl}>ARL</label><input name="arl" className={ui.inp} /></div>
         </div>
         <button className={ui.btn}>Guardar trabajador</button>
       </form>
@@ -42,6 +48,19 @@ export default async function Personal({ searchParams }: { searchParams: Promise
                     <div className="font-medium">{e.full_name}</div>
                     <div className="text-xs text-slate-500">{e.document} {e.phone && `· ${e.phone}`}</div>
                     <div className="text-xs text-slate-500">Día: {cop(Number(e.daily_rate))} · Trabajo: {cop(Number(e.job_rate))}</div>
+                    <details className="mt-2">
+                      <summary className="text-xs underline cursor-pointer">Banco y salud{e.account_number || e.eps ? '' : ' (sin datos)'}</summary>
+                      <form action={updateEmployeeFicha} className="grid gap-2 mt-2">
+                        <input type="hidden" name="id" value={e.id} />
+                        <input name="bank_name" defaultValue={e.bank_name ?? ''} placeholder="Banco" className={ui.inp} />
+                        <select name="account_type" defaultValue={e.account_type ?? ''} className={ui.inp}><option value="">Tipo de cuenta</option><option value="Ahorros">Ahorros</option><option value="Corriente">Corriente</option><option value="Nequi">Nequi</option><option value="Daviplata">Daviplata</option></select>
+                        <input name="account_number" defaultValue={e.account_number ?? ''} placeholder="N&uacute;mero de cuenta" className={ui.inp} />
+                        <input name="eps" defaultValue={e.eps ?? ''} placeholder="EPS (salud)" className={ui.inp} />
+                        <input name="pension_fund" defaultValue={e.pension_fund ?? ''} placeholder="Fondo de pensi&oacute;n" className={ui.inp} />
+                        <input name="arl" defaultValue={e.arl ?? ''} placeholder="ARL" className={ui.inp} />
+                        <button className={ui.btnG}>Guardar datos</button>
+                      </form>
+                    </details>
                   </td>
                   <td className={ui.td}>
                     <form action={updateEmployee} className="flex flex-wrap gap-2 items-center">

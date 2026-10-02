@@ -26,11 +26,11 @@ export async function addProgress(fd: FormData) {
   const id = txt(fd, 'work_order_id')
   const ruta = `/avances/${id}`
   const pct = Number(fd.get('progress_percent'))
-  if (!Number.isInteger(pct) || pct < 0 || pct > 100) volver(ruta, 'El avance debe ser un nÃºmero entero entre 0 y 100')
+  if (!Number.isInteger(pct) || pct < 0 || pct > 100) volver(ruta, 'El avance debe ser un número entero entre 0 y 100')
   const note = txt(fd, 'note')
   const fotos = fd.getAll('photos').filter((f): f is File => f instanceof File && f.size > 0)
   if (!note && !fotos.length) volver(ruta, 'Escribe una nota o agrega al menos una foto')
-  if (fotos.length > MAX_FOTOS) volver(ruta, `MÃ¡ximo ${MAX_FOTOS} fotos por avance`)
+  if (fotos.length > MAX_FOTOS) volver(ruta, `Máximo ${MAX_FOTOS} fotos por avance`)
 
   const subidas: string[] = []
   for (const f of fotos) {

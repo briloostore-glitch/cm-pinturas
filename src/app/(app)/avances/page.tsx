@@ -14,7 +14,7 @@ export default async function Avances({ searchParams }: { searchParams: Promise<
     <>
       <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
         <h1 className="text-2xl font-bold text-navy">{rol === 'trabajador' ? 'Mis obras' : 'Avances de obra'}</h1>
-        <Link href={verTodas ? '/avances' : '/avances?todas=1'} className="btn btn-g">{verTodas ? 'Solo activas' : 'Ver tambiÃ©n terminadas'}</Link>
+        <Link href={verTodas ? '/avances' : '/avances?todas=1'} className="btn btn-g">{verTodas ? 'Solo activas' : 'Ver también terminadas'}</Link>
       </div>
       {error && <div className="err">{error}</div>}
       <div className="grid md:grid-cols-2 gap-4">
@@ -29,7 +29,7 @@ export default async function Avances({ searchParams }: { searchParams: Promise<
             <div className="mt-2">
               <div className="flex justify-between text-xs text-slate-500">
                 <span>Avance {o.ultimo_avance ?? 0}%</span>
-                <span>{o.ultima_fecha ? 'Ãšltimo: ' + hora(o.ultima_fecha) : 'Sin avances'}</span>
+                <span>{o.ultima_fecha ? 'Último: ' + hora(o.ultima_fecha) : 'Sin avances'}</span>
               </div>
               <div className="h-2 rounded bg-slate-100"><div className="h-2 rounded bg-accent" style={{ width: `${o.ultimo_avance ?? 0}%` }} /></div>
             </div>

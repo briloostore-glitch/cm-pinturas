@@ -38,7 +38,7 @@ export default async function AvanceDetalle({ params, searchParams }: { params: 
         <h1 className="text-2xl font-bold text-navy">Obra {String(obra.seq).padStart(3, '0')}</h1>
         <Link href="/avances" className="btn btn-g">Volver</Link>
       </div>
-      <p className="text-sm mb-1">{obra.cliente || 'Sin cliente'} Â· <span className="badge">{obra.status.replace(/_/g, ' ')}</span></p>
+      <p className="text-sm mb-1">{obra.cliente || 'Sin cliente'} · <span className="badge">{obra.status.replace(/_/g, ' ')}</span></p>
       {obra.direccion && <p className="text-xs text-slate-500 mb-3">{obra.direccion}</p>}
       {error && <div className="err">{error}</div>}
 
@@ -52,8 +52,8 @@ export default async function AvanceDetalle({ params, searchParams }: { params: 
               <input type="number" name="progress_percent" min="0" max="100" step="1" defaultValue={obra.ultimo_avance ?? 0} className="inp" required />
             </div>
           </div>
-          <label className="lbl">QuÃ© se hizo</label>
-          <textarea name="note" rows={3} className="inp mb-3" placeholder="Ej: se aplicÃ³ la segunda mano en sala y pasillo" />
+          <label className="lbl">Qué se hizo</label>
+          <textarea name="note" rows={3} className="inp mb-3" placeholder="Ej: se aplicó la segunda mano en sala y pasillo" />
           <PhotosInput />
           <button type="submit" className="btn">Registrar avance</button>
         </form>
@@ -64,7 +64,7 @@ export default async function AvanceDetalle({ params, searchParams }: { params: 
         {avances.map((a) => (
           <div key={a.id} className="card" style={{ marginBottom: 0 }}>
             <div className="flex items-center justify-between text-sm">
-              <span><b>{a.progress_percent}%</b> Â· {hora(a.created_at)}</span>
+              <span><b>{a.progress_percent}%</b> · {hora(a.created_at)}</span>
               <span className="text-slate-500">{a.author_id ? nombres.get(a.author_id) ?? 'Usuario' : '-'}</span>
             </div>
             <div className="h-2 rounded bg-slate-100 my-2"><div className="h-2 rounded bg-accent" style={{ width: `${a.progress_percent}%` }} /></div>
@@ -85,12 +85,12 @@ export default async function AvanceDetalle({ params, searchParams }: { params: 
               <form action={deleteProgress} className="mt-2">
                 <input type="hidden" name="id" value={a.id} />
                 <input type="hidden" name="work_order_id" value={obra.id} />
-                <ConfirmSubmit label="Eliminar avance" message="Â¿Eliminar este avance y sus fotos?" />
+                <ConfirmSubmit label="Eliminar avance" message="¿Eliminar este avance y sus fotos?" />
               </form>
             )}
           </div>
         ))}
-        {!avances.length && <p className="text-sm text-slate-500">TodavÃ­a no hay avances registrados.</p>}
+        {!avances.length && <p className="text-sm text-slate-500">Todavía no hay avances registrados.</p>}
       </div>
     </>
   )

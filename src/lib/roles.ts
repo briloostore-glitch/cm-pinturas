@@ -33,6 +33,7 @@ export const NAV: NavItem[] = [
   { slug: 'proveedores', label: 'Proveedores', icon: '', roles: [A, W], phase: 6 },
   { slug: 'personal', label: 'Personal', icon: '', roles: [A, K], phase: 7 },
   { slug: 'nomina', label: 'Nómina', icon: '', roles: [A, K], phase: 7 },
+  { slug: 'contratos', label: 'Contratos', icon: '', roles: [A, K], phase: 7 },
   { slug: 'gastos', label: 'Gastos', icon: '', roles: [A, K], phase: 7 },
   { slug: 'facturacion', label: 'Facturación y pagos', icon: '', roles: [A, K], phase: 8 },
   { slug: 'reportes', label: 'Reportes', icon: '', roles: [A, S, K], phase: 9 },

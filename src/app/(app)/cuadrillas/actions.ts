@@ -59,7 +59,7 @@ export async function linkProfile(fd: FormData) {
   const profileId = txt(fd, 'profile_id')
   if (profileId) {
     const { data } = await supabase.from('employees').select('id').eq('profile_id', profileId).neq('id', empId).limit(1)
-    if (data?.length) volver('Ese usuario ya estÃ¡ vinculado a otro empleado')
+    if (data?.length) volver('Ese usuario ya está vinculado a otro empleado')
   }
   const { error } = await supabase.from('employees').update({ profile_id: profileId || null }).eq('id', empId)
   if (error) volver('No se pudo vincular el usuario: ' + error.message)

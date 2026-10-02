@@ -8,6 +8,15 @@ import { msg } from '@/lib/money'
 const t = (fd: FormData, k: string) => String(fd.get(k) ?? '').trim()
 const n = (fd: FormData, k: string) => Math.max(0, Number(fd.get(k)) || 0)
 
+const ficha = (fd: FormData) => ({
+  bank_name: t(fd, 'bank_name') || null,
+  account_type: t(fd, 'account_type') || null,
+  account_number: t(fd, 'account_number') || null,
+  eps: t(fd, 'eps') || null,
+  pension_fund: t(fd, 'pension_fund') || null,
+  arl: t(fd, 'arl') || null,
+})
+
 export async function createEmployee(fd: FormData) {
   const { supabase } = await guard('personal')
   if (!t(fd, 'full_name')) redirect('/personal?error=' + msg('Escribe el nombre del trabajador'))
@@ -15,6 +24,7 @@ export async function createEmployee(fd: FormData) {
     full_name: t(fd, 'full_name'), document: t(fd, 'document') || null, phone: t(fd, 'phone') || null,
     position: t(fd, 'position'), pay_type: t(fd, 'pay_type'), daily_rate: n(fd, 'daily_rate'), job_rate: n(fd, 'job_rate'),
     hired_at: t(fd, 'hired_at') || null,
+    ...ficha(fd),
   })
   if (error) redirect('/personal?error=' + msg('No se pudo guardar: ' + error.message))
   revalidatePath('/personal')
@@ -33,5 +43,12 @@ export async function deleteEmployee(fd: FormData) {
   const { supabase } = await guard('personal')
   const { error } = await supabase.from('employees').delete().eq('id', t(fd, 'id'))
   if (error) redirect('/personal?error=' + msg('No se puede eliminar: tiene nómina registrada. Márcalo como inactivo.'))
+  revalidatePath('/personal')
+}
+
+export async function updateEmployeeFicha(fd: FormData) {
+  const { supabase } = await guard('personal')
+  const { error } = await supabase.from('employees').update(ficha(fd)).eq('id', t(fd, 'id'))
+  if (error) redirect('/personal?error=' + msg('No se pudo guardar: ' + error.message))
   revalidatePath('/personal')
 }

@@ -21,7 +21,7 @@ export default async function Cuadrillas({ searchParams }: { searchParams: Promi
   return (
     <>
       <h1 className="text-2xl font-bold text-navy mb-1">Cuadrillas y accesos</h1>
-      <p className="text-sm text-slate-500 mb-4">AquÃ­ armas las cuadrillas y vinculas a cada empleado con su usuario. Un trabajador solo ve las obras de su cuadrilla.</p>
+      <p className="text-sm text-slate-500 mb-4">Aquí armas las cuadrillas y vinculas a cada empleado con su usuario. Un trabajador solo ve las obras de su cuadrilla.</p>
       {error && <div className="err">{error}</div>}
 
       <div className="card">
@@ -38,7 +38,7 @@ export default async function Cuadrillas({ searchParams }: { searchParams: Promi
                 <form action={toggleCrew} className="flex items-center justify-between mb-2">
                   <input type="hidden" name="id" value={c.id} />
                   <input type="hidden" name="active" value={c.active ? 'false' : 'true'} />
-                  <b>{c.name} <span className="text-sm font-normal text-slate-500">Â· {c.active ? 'activa' : 'inactiva'}</span></b>
+                  <b>{c.name} <span className="text-sm font-normal text-slate-500">· {c.active ? 'activa' : 'inactiva'}</span></b>
                   <button type="submit" className="btn btn-g">{c.active ? 'Desactivar' : 'Activar'}</button>
                 </form>
                 <ul className="space-y-1 mb-2">
@@ -65,7 +65,7 @@ export default async function Cuadrillas({ searchParams }: { searchParams: Promi
               </div>
             )
           })}
-          {!(crews ?? []).length && <p className="text-sm text-slate-500">AÃºn no hay cuadrillas.</p>}
+          {!(crews ?? []).length && <p className="text-sm text-slate-500">Aún no hay cuadrillas.</p>}
         </div>
       </div>
 

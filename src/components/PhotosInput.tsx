@@ -6,7 +6,7 @@ import type { ChangeEvent } from 'react'
 const LADO_MAX = 1280
 const MAX_FOTOS = 4
 
-// Reduce cada foto en el navegador (JPEG, maximo 1280 px) para que suba rapido y no pase el limite de tamaÃ±o.
+// Reduce cada foto en el navegador (JPEG, maximo 1280 px) para que suba rapido y no pase el limite de tamaño.
 async function reducir(file: File): Promise<File> {
   const bmp = await createImageBitmap(file)
   const esc = Math.min(1, LADO_MAX / Math.max(bmp.width, bmp.height))
