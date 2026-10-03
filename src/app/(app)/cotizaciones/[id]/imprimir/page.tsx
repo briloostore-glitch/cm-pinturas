@@ -4,11 +4,12 @@ import { requireModule } from '@/lib/auth'
 import { cop, fdate, pesosEnLetras } from '@/lib/format'
 import { getSettings } from '@/lib/settings'
 import PrintButton from '@/components/PrintButton'
+import { esServicioPiso, FACTOR_PISO, m2 } from '@/lib/area'
 
 type Q = {
   id: string; seq: number; mode: number; city: string; area_m2: number; transport: number; other_costs: number
   margin_percent: number; tax_percent: number; subtotal: number; tax: number; visit_credit: number; total: number
-  valid_days: number; created_at: string
+  valid_days: number; created_at: string; client_reported_area: number | null; area_basis: string | null
   clients: { first_name: string; last_name: string | null; document: string | null; phone: string | null; address: string | null } | null
   properties: { address: string | null } | null
 }
@@ -34,6 +35,17 @@ export default async function Imprimir({ params }: { params: Promise<{ id: strin
   const total = Number(q.total), anticipo = (total * st.deposit_percent) / 100
   const hayCredito = Number(q.visit_credit) > 0
   const blanks = Math.max(0, 12 - rows.length)
+  const areaCobrada = Number(q.area_m2)
+  const areaInf = q.client_reported_area != null ? Number(q.client_reported_area) : null
+  const todosPiso = (items ?? []).length > 0 && (items ?? []).every((i) => esServicioPiso(i.description))
+  const antigua = areaInf == null && !q.area_basis
+  const notaArea = antigua
+    ? `Superficie a intervenir: ${m2(areaCobrada)} m\u00b2.`
+    : todosPiso
+      ? `\u00c1rea de piso: ${m2(areaCobrada)} m\u00b2, equivalente a unos ${m2(Math.round(areaCobrada * FACTOR_PISO))} m\u00b2 de paredes y techo. Este servicio se cotiza sobre el \u00e1rea de piso.`
+      : areaInf != null && q.area_basis === 'piso'
+        ? `El \u00e1rea que usted indic\u00f3 (${m2(areaInf)} m\u00b2) corresponde al piso. La pintura se cobra sobre la superficie de paredes y techo: ${m2(areaCobrada)} m\u00b2.`
+        : `Superficie a intervenir: ${m2(areaCobrada)} m\u00b2.`
   const includes = m ? T.includes : 'Mano de obra (materiales suministrados por el cliente), protección de pisos y muebles, y limpieza final.'
 
   return (
@@ -86,6 +98,8 @@ export default async function Imprimir({ params }: { params: Promise<{ id: strin
             ))}
           </tbody>
         </table>
+        <div className="gp" />
+        <div style={{ border: '1px solid #1e3a8a', borderRadius: 4, padding: '6px 10px', fontSize: 12, marginTop: 8, breakInside: 'avoid', pageBreakInside: 'avoid' }}>{notaArea}</div>
         <div className="gp" />
 
         <table><tbody>

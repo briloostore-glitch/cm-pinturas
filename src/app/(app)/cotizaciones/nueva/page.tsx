@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import { requireModule } from '@/lib/auth'
 import { createQuote } from '../actions'
+import AreaCobrada from '@/components/AreaCobrada'
+import { esServicioPiso } from '@/lib/area'
 
 type Sol = {
   id: string; client_id: string | null; nombre: string | null; celular: string | null; correo: string | null
@@ -96,7 +98,7 @@ export default async function NuevaCotizacion({ searchParams }: { searchParams: 
                 <option value="oficina">Oficina</option><option value="otro">Otro</option>
               </select>
             </div>
-            <div><label className="lbl">Área (m²) *</label><input name="area_m2" type="number" min="1" step="0.01" required defaultValue={sol?.area_m2 ?? undefined} className="inp" /></div>
+            <AreaCobrada pisoIds={(services ?? []).filter((sv) => esServicioPiso(sv.name)).map((sv) => String(sv.id))} defaultInformada={sol?.area_m2 ?? undefined} defaultCobrada={sol?.area_m2 ?? undefined} />
             <div>
               <label className="lbl">Zona *</label>
               <select name="city" defaultValue={zona} className="inp">{(zones ?? []).map((z) => <option key={z.name}>{z.name}</option>)}</select>

@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation'
 import { requireModule } from '@/lib/auth'
 import { toMsg } from '@/lib/format'
 import { getSettings } from '@/lib/settings'
+import { esServicioPiso } from '@/lib/area'
 
 const back = (m: string): never => redirect('/cotizaciones/nueva?error=' + toMsg(m))
 
@@ -25,6 +26,19 @@ export async function createQuote(fd: FormData) {
   ])
   if (!zone || !svcs?.length) back('No se encontró la zona o los servicios elegidos')
 
+  const informadaTxt = String(fd.get('client_reported_area') ?? '').trim()
+  const baseArea = String(fd.get('area_basis') ?? '')
+  const informada = Number(informadaTxt.replace(',', '.'))
+  const soloPiso = svcs!.every((s) => esServicioPiso(s.name))
+  let extraArea: { client_reported_area?: number; area_basis?: string } = {}
+  if (informadaTxt !== '' || baseArea !== '') {
+    if (!(informada > 0)) back('Escribe el \u00e1rea informada por el cliente (m\u00b2)')
+    if (!['piso', 'superficie', 'otro'].includes(baseArea)) back('Indica a qu\u00e9 corresponde el \u00e1rea informada: piso, superficie u otro')
+    extraArea = { client_reported_area: informada, area_basis: baseArea }
+  } else if (soloPiso) {
+    extraArea = { client_reported_area: area, area_basis: 'piso' }
+  }
+
   const { data: prop } = await supabase.from('properties').insert({
     client_id: clientId, kind: String(fd.get('kind') || 'casa'), address: String(fd.get('address') ?? '').trim() || null,
     city, area_m2: area, has_humidity: fd.get('has_humidity') === 'on',
@@ -32,6 +46,7 @@ export async function createQuote(fd: FormData) {
 
   const { data: q, error } = await supabase.from('quotes').insert({
     client_id: clientId, property_id: prop?.id ?? null, mode, city, area_m2: area,
+    ...extraArea,
     zone_percent: zone!.labor_percent, transport: zone!.transport, other_costs: st.other_costs,
     margin_percent: st.margin_percent, tax_percent: st.tax_percent, valid_days: st.quote_validity_days, created_by: profile.id,
   }).select('id').single()
