@@ -62,3 +62,36 @@ export async function rejectQuote(fd: FormData) {
   await supabase.rpc('reject_quote', { qid: id })
   revalidatePath(`/cotizaciones/${id}`)
 }
+
+const falla = (ruta: string, m: string): never => redirect(ruta + '?error=' + toMsg(m))
+
+// Elimina una cotizacion. Solo administrador. No se borra si ya tiene trabajo, factura o visita ligada.
+export async function deleteQuote(fd: FormData) {
+  const { supabase, profile } = await requireModule('cotizaciones')
+  const id = String(fd.get('id') ?? '')
+  const ruta = String(fd.get('from') ?? '') === 'detalle' ? '/cotizaciones/' + id : '/cotizaciones'
+  if (!id) falla('/cotizaciones', 'Cotizacion no valida')
+
+  const { data: rol } = await supabase.rpc('app_role')
+  const esAdmin = rol === 'administrador' || (profile as unknown as { role?: string }).role === 'administrador'
+  if (!esAdmin) falla(ruta, 'Solo el administrador puede eliminar cotizaciones')
+
+  const [obras, facturas, visitas] = await Promise.all([
+    supabase.from('work_orders').select('id', { count: 'exact', head: true }).eq('quote_id', id),
+    supabase.from('invoices').select('id', { count: 'exact', head: true }).eq('quote_id', id),
+    supabase.from('visits').select('id', { count: 'exact', head: true }).eq('credit_quote_id', id),
+  ])
+  if ((obras.count ?? 0) > 0) falla(ruta, 'No se puede eliminar: ya tiene un trabajo creado. Dejala como rechazada.')
+  if ((facturas.count ?? 0) > 0) falla(ruta, 'No se puede eliminar: ya tiene una factura. Dejala como rechazada.')
+  if ((visitas.count ?? 0) > 0) falla(ruta, 'No se puede eliminar: una visita tecnica usa esta cotizacion como credito.')
+
+  const { data, error } = await supabase.from('quotes').delete().eq('id', id).select('id')
+  if (error) {
+    falla(ruta, error.code === '23503'
+      ? 'No se puede eliminar: tiene trabajo, factura o visita ligada. Dejala como rechazada.'
+      : 'No se pudo eliminar: ' + error.message)
+  }
+  if (!data || !data.length) falla(ruta, 'No se pudo eliminar: sin permiso o ya no existe')
+  revalidatePath('/cotizaciones')
+  redirect('/cotizaciones')
+}

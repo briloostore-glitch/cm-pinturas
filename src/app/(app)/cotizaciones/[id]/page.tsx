@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { requireModule } from '@/lib/auth'
 import { cop, fdate } from '@/lib/format'
-import { approveQuote, rejectQuote } from '../actions'
+import { approveQuote, deleteQuote, rejectQuote } from '../actions'
 import ConfirmSubmit from '@/components/ConfirmSubmit'
 
 type Q = {
@@ -12,9 +12,12 @@ type Q = {
   clients: { first_name: string; last_name: string | null; phone: string | null } | null
 }
 
-export default async function CotizacionDetalle({ params }: { params: Promise<{ id: string }> }) {
+export default async function CotizacionDetalle({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ error?: string }> }) {
   const { id } = await params
-  const { supabase } = await requireModule('cotizaciones')
+  const { error } = await searchParams
+  const { supabase, profile } = await requireModule('cotizaciones')
+  const { data: rol } = await supabase.rpc('app_role')
+  const esAdmin = rol === 'administrador' || (profile as unknown as { role?: string }).role === 'administrador'
   const { data } = await supabase.from('quotes').select('*, clients(first_name,last_name,phone)').eq('id', id).single()
   if (!data) notFound()
   const q = data as unknown as Q
@@ -29,9 +32,17 @@ export default async function CotizacionDetalle({ params }: { params: Promise<{ 
         </h1>
         <div className="flex gap-2">
           <Link href="/cotizaciones" className="btn btn-g">Volver</Link>
+          {esAdmin && (
+            <form action={deleteQuote}>
+              <input type="hidden" name="id" value={q.id} />
+              <input type="hidden" name="from" value="detalle" />
+              <ConfirmSubmit label="Eliminar" message="&iquest;Eliminar esta cotizaci&oacute;n? No se puede deshacer." />
+            </form>
+          )}
           <Link href={`/cotizaciones/${q.id}/imprimir`} className="btn btn-o">Ver hoja para imprimir</Link>
         </div>
       </div>
+      {error && <div className="err">{error}</div>}
       <div className="card">
         <p><b>{q.clients?.first_name} {q.clients?.last_name}</b> · {q.clients?.phone} · {fdate(q.created_at)}</p>
         <p className="text-sm text-slate-500">{q.area_m2} m² · Zona {q.city} (mano de obra al {q.zone_percent}%) · {q.mode === 1 ? 'Mano de obra + materiales' : 'Solo mano de obra'}</p>
