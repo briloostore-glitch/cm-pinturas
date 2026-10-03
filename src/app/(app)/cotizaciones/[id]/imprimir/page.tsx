@@ -5,6 +5,7 @@ import { cop, fdate, pesosEnLetras } from '@/lib/format'
 import { getSettings } from '@/lib/settings'
 import PrintButton from '@/components/PrintButton'
 import { esServicioPiso, FACTOR_PISO, m2 } from '@/lib/area'
+import { clasificar } from '@/lib/servicios'
 
 type Q = {
   id: string; seq: number; mode: number; city: string; area_m2: number; transport: number; other_costs: number
@@ -28,7 +29,7 @@ export default async function Imprimir({ params }: { params: Promise<{ id: strin
 
   // La utilidad se reparte dentro de cada valor (el formato no tiene línea de utilidad)
   const k = 1 + Number(q.margin_percent) / 100
-  const rows: { d: string; u: string; q: number; t: number }[] = (items ?? []).map((i) => ({ d: i.description, u: 'm²', q: Number(i.qty), t: Number(i.total) * k }))
+  const rows: { d: string; u: string; q: number; t: number }[] = (items ?? []).map((i) => ({ d: i.description, u: (i.unit && !String(i.unit).toLowerCase().startsWith('m') ? String(i.unit) : 'm\u00b2'), q: Number(i.qty), t: Number(i.total) * k }))
   if (Number(q.transport) > 0) rows.push({ d: `Transporte (${q.city})`, u: 'und', q: 1, t: Number(q.transport) * k })
   if (Number(q.other_costs) > 0) rows.push({ d: 'Otros costos', u: 'und', q: 1, t: Number(q.other_costs) * k })
 
@@ -37,15 +38,19 @@ export default async function Imprimir({ params }: { params: Promise<{ id: strin
   const blanks = Math.max(0, 12 - rows.length)
   const areaCobrada = Number(q.area_m2)
   const areaInf = q.client_reported_area != null ? Number(q.client_reported_area) : null
-  const todosPiso = (items ?? []).length > 0 && (items ?? []).every((i) => esServicioPiso(i.description))
+  const lineasArea = (items ?? []).map((i) => ({ qty: Number(i.qty), k: clasificar(i.description), piso: esServicioPiso(i.description) }))
+  const pisoLinea = lineasArea.find((l) => l.piso)
+  const medidosLinea = lineasArea.find((l) => l.k.grupo === 'interior' && !l.piso)
+  const variasCantidades = new Set(lineasArea.map((l) => l.qty)).size > 1
   const antigua = areaInf == null && !q.area_basis
-  const notaArea = antigua
-    ? `Superficie a intervenir: ${m2(areaCobrada)} m\u00b2.`
-    : todosPiso
-      ? `\u00c1rea de piso: ${m2(areaCobrada)} m\u00b2, equivalente a unos ${m2(Math.round(areaCobrada * FACTOR_PISO))} m\u00b2 de paredes y techo. Este servicio se cotiza sobre el \u00e1rea de piso.`
+  const notaSuperficie = variasCantidades ? null : `Superficie a intervenir: ${m2(areaCobrada)} m\u00b2.`
+  const notaArea: string | null = antigua
+    ? notaSuperficie
+    : pisoLinea
+      ? `\u00c1rea de piso: ${m2(pisoLinea.qty)} m\u00b2, equivalente a unos ${m2(Math.round(pisoLinea.qty * FACTOR_PISO))} m\u00b2 de paredes y techo. Este servicio se cotiza sobre el \u00e1rea de piso.`
       : areaInf != null && q.area_basis === 'piso'
-        ? `El \u00e1rea que usted indic\u00f3 (${m2(areaInf)} m\u00b2) corresponde al piso. La pintura se cobra sobre la superficie de paredes y techo: ${m2(areaCobrada)} m\u00b2.`
-        : `Superficie a intervenir: ${m2(areaCobrada)} m\u00b2.`
+        ? `El \u00e1rea que usted indic\u00f3 (${m2(areaInf)} m\u00b2) corresponde al piso. La pintura se cobra sobre la superficie de paredes y techo: ${m2(medidosLinea ? medidosLinea.qty : areaCobrada)} m\u00b2.`
+        : notaSuperficie
   const includes = m ? T.includes : 'Mano de obra (materiales suministrados por el cliente), protección de pisos y muebles, y limpieza final.'
 
   return (
@@ -99,7 +104,7 @@ export default async function Imprimir({ params }: { params: Promise<{ id: strin
           </tbody>
         </table>
         <div className="gp" />
-        <div style={{ border: '1px solid #1e3a8a', borderRadius: 4, padding: '6px 10px', fontSize: 12, marginTop: 8, breakInside: 'avoid', pageBreakInside: 'avoid' }}>{notaArea}</div>
+        {notaArea && <div style={{ border: '1px solid #1e3a8a', borderRadius: 4, padding: '6px 10px', fontSize: 12, marginTop: 8, breakInside: 'avoid', pageBreakInside: 'avoid' }}>{notaArea}</div>}
         <div className="gp" />
 
         <table><tbody>

@@ -1,8 +1,7 @@
 import Link from 'next/link'
 import { requireModule } from '@/lib/auth'
 import { createQuote } from '../actions'
-import AreaCobrada from '@/components/AreaCobrada'
-import { esServicioPiso } from '@/lib/area'
+import FormularioCotizacion from '@/components/FormularioCotizacion'
 
 type Sol = {
   id: string; client_id: string | null; nombre: string | null; celular: string | null; correo: string | null
@@ -22,6 +21,7 @@ function tipoDe(s: string | null): string {
   if (n.includes('casa')) return 'casa'
   return n ? 'otro' : 'casa'
 }
+
 export default async function NuevaCotizacion({ searchParams }: { searchParams: Promise<{ error?: string; solicitud?: string }> }) {
   const { error, solicitud } = await searchParams
   const { supabase } = await requireModule('cotizaciones')
@@ -43,14 +43,15 @@ export default async function NuevaCotizacion({ searchParams }: { searchParams: 
   const ciudadSol = sol ? (sol.ciudad === 'Otra' ? sol.ciudad_otra : sol.ciudad) : null
   const zona = (zones ?? []).find((z) => norm(z.name) === norm(ciudadSol))?.name as string | undefined
   const svcSol = norm(sol?.servicio)
-  const marcados = new Set<string>(
-    svcSol
-      ? (services ?? []).filter((sv) => { const n = norm(sv.name); return n === svcSol || svcSol.includes(n) || n.includes(svcSol) }).map((sv) => String(sv.id))
-      : []
-  )
+  const exactos = svcSol ? (services ?? []).filter((sv) => norm(sv.name) === svcSol) : []
+  const parecidos = svcSol && !exactos.length
+    ? (services ?? []).filter((sv) => { const n = norm(sv.name); return svcSol.includes(n) || n.includes(svcSol) })
+    : []
+  const marcados = (exactos.length ? exactos : parecidos).map((sv) => String(sv.id))
+
   return (
     <>
-      <h1 className="text-2xl font-bold text-navy mb-4">Nueva cotización</h1>
+      <h1 className="text-2xl font-bold text-navy mb-4">Nueva cotizaci&oacute;n</h1>
       {error && <div className="err">{error}</div>}
       {sol && (
         <div className="card" style={{ borderLeft: '4px solid #1e3a8a' }}>
@@ -75,52 +76,32 @@ export default async function NuevaCotizacion({ searchParams }: { searchParams: 
             </p>
           )}
           {!zona && ciudadSol && <p className="text-sm text-red-600">La ciudad &quot;{ciudadSol}&quot; no est&aacute; en tus zonas: elige la zona.</p>}
-          {!marcados.size && sol.servicio && <p className="text-sm text-red-600">Marca el servicio a mano: pidi&oacute; &quot;{sol.servicio}&quot;.</p>}
+          {!marcados.length && sol.servicio && <p className="text-sm text-red-600">Marca el servicio a mano: pidi&oacute; &quot;{sol.servicio}&quot;.</p>}
         </div>
       )}
-      {!(clients ?? []).length ? (
+      {!lista.length ? (
         <div className="card">Primero registra un cliente en <Link href="/clientes" className="underline text-navy">Clientes</Link>.</div>
       ) : (
-        <form action={createQuote} className="card">
-          {sol && <input type="hidden" name="solicitud" value={sol.id} />}
-          <div className="grid-f">
-            <div>
-              <label className="lbl">Cliente *</label>
-              <select name="client_id" required defaultValue={cliente?.id} className="inp">
-                {sol && !cliente && <option value="">Elige el cliente...</option>}
-                {(clients ?? []).map((c) => <option key={c.id} value={c.id}>{c.first_name} {c.last_name} {c.phone ? `· ${c.phone}` : ''}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="lbl">Tipo de inmueble</label>
-              <select name="kind" defaultValue={sol ? tipoDe(sol.tipo_inmueble) : undefined} className="inp">
-                <option value="casa">Casa</option><option value="apartamento">Apartamento</option><option value="local">Local comercial</option>
-                <option value="oficina">Oficina</option><option value="otro">Otro</option>
-              </select>
-            </div>
-            <AreaCobrada pisoIds={(services ?? []).filter((sv) => esServicioPiso(sv.name)).map((sv) => String(sv.id))} defaultInformada={sol?.area_m2 ?? undefined} defaultCobrada={sol?.area_m2 ?? undefined} />
-            <div>
-              <label className="lbl">Zona *</label>
-              <select name="city" defaultValue={zona} className="inp">{(zones ?? []).map((z) => <option key={z.name}>{z.name}</option>)}</select>
-            </div>
-            <div><label className="lbl">Dirección de la obra</label><input name="address" defaultValue={sol?.direccion ?? ''} className="inp" /></div>
-          </div>
-          <label className="lbl">Servicios *</label>
-          <div className="flex flex-wrap gap-2 mb-3">
-            {(services ?? []).map((s) => (
-              <label key={s.id} className="flex items-center gap-2 border border-slate-300 rounded-lg px-3 py-1.5 text-sm bg-white">
-                <input type="checkbox" name="services" value={s.id} defaultChecked={marcados.has(String(s.id))} /> {s.name}
-              </label>
-            ))}
-          </div>
-          <div className="flex flex-wrap gap-4 mb-4 text-sm">
-            <label className="flex items-center gap-2"><input type="radio" name="mode" value="1" defaultChecked /> Mano de obra + materiales</label>
-            <label className="flex items-center gap-2"><input type="radio" name="mode" value="2" /> Solo mano de obra (materiales del cliente)</label>
-            <label className="flex items-center gap-2"><input type="checkbox" name="has_humidity" defaultChecked={!!sol?.humedad} /> Tiene humedad</label>
-          </div>
-          <button className="btn btn-o">Calcular y crear cotización</button>
-          <p className="text-xs text-slate-500 mt-2">El precio se calcula en el servidor con las tarifas de Precios, el ajuste de la zona, el transporte y el margen.</p>
-        </form>
+        <FormularioCotizacion
+          key={solicitud ?? 'nueva'}
+          action={createQuote}
+          solicitudId={sol?.id}
+          clientes={lista.map((c) => ({
+            id: String(c.id),
+            label: String(c.first_name ?? '') + ' ' + String(c.last_name ?? '') + (c.phone ? ' - ' + c.phone : ''),
+          }))}
+          servicios={(services ?? []).map((s) => ({ id: String(s.id), name: String(s.name) }))}
+          zonas={(zones ?? []).map((z) => String(z.name))}
+          inicial={{
+            clienteId: cliente ? String(cliente.id) : undefined,
+            tipo: sol ? tipoDe(sol.tipo_inmueble) : undefined,
+            zona,
+            direccion: sol?.direccion ?? undefined,
+            humedad: !!sol?.humedad,
+            areaInformada: sol?.area_m2 ?? undefined,
+            marcados,
+          }}
+        />
       )}
     </>
   )
