@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { requireModule } from '@/lib/auth'
 import { fdate } from '@/lib/format'
 import { convertRequest, discardRequest, deleteRequest } from './actions'
@@ -49,6 +50,9 @@ export default async function Solicitudes({ searchParams }: { searchParams: Prom
               </p>
             )}
             <div className="flex gap-2 mt-3">
+              {r.status !== 'descartada' && (
+                <Link href={`/cotizaciones/nueva?solicitud=${r.id}`} className="btn btn-o">Cotizar</Link>
+              )}
               {r.status === 'nueva' && (<>
                 <form action={convertRequest}>
                   <input type="hidden" name="id" value={r.id} />

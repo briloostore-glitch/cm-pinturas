@@ -46,6 +46,10 @@ export async function createQuote(fd: FormData) {
       material_unit: mode === 1 ? Number(s.material_per_m2) : 0,
     }))
   )
+  const solId = String(fd.get('solicitud') ?? '')
+  if (solId) {
+    await supabase.from('requests').update({ status: 'convertida', client_id: clientId }).eq('id', solId).eq('status', 'nueva')
+  }
   redirect(`/cotizaciones/${q!.id}`)
 }
 
