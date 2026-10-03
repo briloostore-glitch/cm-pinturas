@@ -24,7 +24,7 @@ export default function AreaCobrada({
 
   const n = Number(inf.replace(',', '.'))
   const hayOtroServicio = sel.length === 0 || sel.some((id) => !pisoIds.includes(id))
-  const mostrarBoton = base === 'piso' && n > 0 && hayOtroServicio
+  const mostrarBoton = (base === 'piso' || base === '') && n > 0 && hayOtroServicio
   const estimado = Math.round(n * FACTOR_PISO)
 
   return (
@@ -46,7 +46,7 @@ export default function AreaCobrada({
         <label className="lbl">&Aacute;rea a cobrar (m&sup2;) *</label>
         <input name="area_m2" type="number" min="1" step="0.01" required value={cobrada} onChange={(e) => setCobrada(e.target.value)} className="inp" />
         {mostrarBoton && (
-          <button type="button" className="btn btn-g mt-1" onClick={() => setCobrada(String(estimado))}>
+          <button type="button" className="btn btn-g mt-1" onClick={() => { setBase('piso'); setCobrada(String(estimado)) }}>
             Usar estimado: {estimado} m&sup2; ({n} &times; {FACTOR_PISO})
           </button>
         )}
