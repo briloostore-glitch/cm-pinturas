@@ -16,6 +16,9 @@ const P: Record<string, ReactNode> = {
   reportes: <><path d="M3 3v18h18" /><path d="M8 17v-6M13 17V7M18 17v-9" /></>,
   precios: <><path d="M3 3h8.5L21 12.5 12.5 21 3 11.5z" /><circle cx="7.5" cy="7.5" r="1.5" /></>,
   usuarios: <><path d="M12 2.5 4 5.5v6c0 5 3.4 8.4 8 10 4.6-1.6 8-5 8-10v-6z" /><path d="m8.5 12 2.5 2.5 4.5-5" /></>,
+  avances: <><path d="M3 20h18" /><path d="M5 15l5-5 3.5 3.5L20 7" /><path d="M15 7h5v5" /></>,
+  'mis-pagos': <><rect x="3" y="6" width="18" height="14" rx="2" /><path d="M5 6l10.5-3A1.5 1.5 0 0 1 17 4.5V6" /><path d="M21 12h-4.5a2 2 0 0 0 0 4H21" /><path d="M16.5 14h.01" /></>,
+  cuadrillas: <><path d="M2.5 18.5h19" /><path d="M4.5 18.5V16a7.5 7.5 0 0 1 15 0v2.5" /><path d="M12 8.5V15" /></>,
 }
 
 export default function Icon({ name, className = 'w-5 h-5' }: { name: string; className?: string }) {

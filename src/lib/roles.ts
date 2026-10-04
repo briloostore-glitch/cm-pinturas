@@ -42,4 +42,5 @@ export const NAV: NavItem[] = [
   { slug: 'usuarios', label: 'Usuarios', icon: '', roles: [A], phase: 3 },
 ]
 
-export const homeFor = (r: Role) => (r === 'trabajador' ? '/trabajos' : '/panel')
+// Primera pagina del menu que el rol puede ver (asi nunca lo manda a una pagina sin acceso)
+export const homeFor = (r: Role) => '/' + (NAV.find((n) => n.roles.includes(r))?.slug ?? 'panel')
