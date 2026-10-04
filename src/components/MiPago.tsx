@@ -1,4 +1,5 @@
 import type { CSSProperties } from 'react'
+import Link from 'next/link'
 import { cop } from '@/lib/format'
 
 type Periodo = {
@@ -32,7 +33,10 @@ export default function MiPago({ pago }: { pago: Pago | null }) {
 
   return (
     <div className="card" style={{ borderLeft: '4px solid #15803d' }}>
-      <h2 className="font-bold text-navy mb-2">Mi pago</h2>
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+        <h2 className="font-bold text-navy">Mi pago</h2>
+        <Link href="/avances/desprendible" className="btn btn-o">Imprimir desprendible de pago</Link>
+      </div>
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 mb-3">
         {dia > 0 && (
           <div style={caja}>
