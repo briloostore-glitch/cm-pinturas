@@ -53,13 +53,25 @@ export async function removeMember(fd: FormData) {
   listo()
 }
 
-export async function linkProfile(fd: FormData) {
+// Asigna (o quita) la cuadrilla de una obra. La funcion de la base de datos solo deja a administrador y supervisor.
+export async function assignCrew(fd: FormData) {
   const { supabase } = await requireModule('cuadrillas')
+  const obra = txt(fd, 'obra_id')
+  if (!obra) volver('Obra no v\u00e1lida')
+  const { error } = await supabase.rpc('asignar_cuadrilla', { p_obra: obra, p_cuadrilla: txt(fd, 'crew_id') || null })
+  if (error) volver('No se pudo asignar la cuadrilla: ' + error.message)
+  listo()
+}
+
+// Solo el administrador vincula empleados con usuarios.
+export async function linkProfile(fd: FormData) {
+  const { supabase, profile } = await requireModule('cuadrillas')
+  if ((profile as unknown as { role?: string }).role !== 'administrador') volver('Solo el administrador puede vincular usuarios')
   const empId = txt(fd, 'employee_id')
   const profileId = txt(fd, 'profile_id')
   if (profileId) {
     const { data } = await supabase.from('employees').select('id').eq('profile_id', profileId).neq('id', empId).limit(1)
-    if (data?.length) volver('Ese usuario ya está vinculado a otro empleado')
+    if (data?.length) volver('Ese usuario ya est\u00e1 vinculado a otro empleado')
   }
   const { error } = await supabase.from('employees').update({ profile_id: profileId || null }).eq('id', empId)
   if (error) volver('No se pudo vincular el usuario: ' + error.message)

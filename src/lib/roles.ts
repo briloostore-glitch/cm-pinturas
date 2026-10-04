@@ -21,15 +21,15 @@ export type NavItem = { slug: string; label: string; icon: string; roles: Role[]
 
 // Qué módulo ve cada rol (la base de datos también lo protege con RLS)
 export const NAV: NavItem[] = [
-  { slug: 'panel', label: 'Panel', icon: '', roles: [A, S, C, W, K], phase: 3 },
-  { slug: 'clientes', label: 'Clientes', icon: '', roles: [A, S, C], phase: 4 },
-  { slug: 'cotizaciones', label: 'Cotizaciones', icon: '', roles: [A, S, C], phase: 4 },
-  { slug: 'solicitudes', label: 'Solicitudes', icon: '', roles: [A, S, C], phase: 4 },
+  { slug: 'panel', label: 'Panel', icon: '', roles: [A, C, W, K], phase: 3 },
+  { slug: 'clientes', label: 'Clientes', icon: '', roles: [A, C], phase: 4 },
+  { slug: 'cotizaciones', label: 'Cotizaciones', icon: '', roles: [A, C], phase: 4 },
+  { slug: 'solicitudes', label: 'Solicitudes', icon: '', roles: [A, C], phase: 4 },
   { slug: 'visitas', label: 'Visitas técnicas', icon: '', roles: [A, S, C], phase: 5 },
-  { slug: 'trabajos', label: 'Trabajos', icon: '', roles: [A, S], phase: 5 },
+  { slug: 'trabajos', label: 'Trabajos', icon: '', roles: [A], phase: 5 },
   { slug: 'avances', label: 'Avances de obra', icon: '', roles: [A, S, T, K], phase: 5 },
-  { slug: 'mis-pagos', label: 'Mis pagos', icon: '', roles: [T], phase: 7 },
-  { slug: 'cuadrillas', label: 'Cuadrillas y accesos', icon: '', roles: [A], phase: 5 },
+  { slug: 'mis-pagos', label: 'Mis pagos', icon: '', roles: [T, S], phase: 7 },
+  { slug: 'cuadrillas', label: 'Cuadrillas', icon: '', roles: [A, S], phase: 5 },
   { slug: 'inventario', label: 'Inventario', icon: '', roles: [A, W], phase: 6 },
   { slug: 'proveedores', label: 'Proveedores', icon: '', roles: [A, W], phase: 6 },
   { slug: 'personal', label: 'Personal', icon: '', roles: [A, K], phase: 7 },
@@ -37,7 +37,7 @@ export const NAV: NavItem[] = [
   { slug: 'contratos', label: 'Contratos', icon: '', roles: [A, K], phase: 7 },
   { slug: 'gastos', label: 'Gastos', icon: '', roles: [A, K], phase: 7 },
   { slug: 'facturacion', label: 'Facturación y pagos', icon: '', roles: [A, K], phase: 8 },
-  { slug: 'reportes', label: 'Reportes', icon: '', roles: [A, S, K], phase: 9 },
+  { slug: 'reportes', label: 'Reportes', icon: '', roles: [A, K], phase: 9 },
   { slug: 'precios', label: 'Precios', icon: '', roles: [A], phase: 4 },
   { slug: 'usuarios', label: 'Usuarios', icon: '', roles: [A], phase: 3 },
 ]
