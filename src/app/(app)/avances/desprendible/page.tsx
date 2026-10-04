@@ -8,7 +8,8 @@ import type { Pago } from '@/components/MiPago'
 
 type Fila = Pago['periodos'][number]
 
-export default async function Desprendible() {
+export default async function Desprendible({ searchParams }: { searchParams: Promise<{ p?: string }> }) {
+  const { p: pSel } = await searchParams
   const { supabase } = await requireModule('avances')
   const [{ data }, st] = await Promise.all([supabase.rpc('mi_pago'), getSettings(supabase)])
   const pago = (data as (Pago & { documento?: string | null }) | null) ?? null
@@ -26,11 +27,13 @@ export default async function Desprendible() {
     )
   }
 
-  const filas: Fila[] = pago.periodos
+  const idx = pSel ? Number(pSel) : NaN
+  const unico: Fila | null = Number.isInteger(idx) && idx >= 0 && idx < pago.periodos.length ? pago.periodos[idx] : null
+  const filas: Fila[] = unico ? [unico] : pago.periodos
   const suma = (f: (p: Fila) => number | null) => filas.reduce((a, p) => a + Number(f(p) ?? 0), 0)
   const hoy = new Date().toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'America/Bogota' })
   const dia = Number(pago.valor_dia ?? 0)
-  const adel = Number(pago.adelantos_total ?? 0)
+  const adel = unico ? Number(unico.adelantos ?? 0) : Number(pago.adelantos_total ?? 0)
 
   return (
     <>
