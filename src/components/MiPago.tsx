@@ -31,8 +31,19 @@ export default function MiPago({ pago }: { pago: Pago | null }) {
   }
   const dia = Number(pago.valor_dia ?? 0)
   const trabajo = Number(pago.valor_trabajo ?? 0)
-  const adel = Number(pago.adelantos_total ?? 0)
+  const esDiario = String(pago.tipo_pago ?? '').toLowerCase() === 'diario'
   const caja: CSSProperties = { border: '1px solid #e2e8f0', borderRadius: 8, padding: '8px 12px', background: '#f8fafc' }
+  const cajaVerde: CSSProperties = { ...caja, border: '1px solid #86efac', background: '#f0fdf4' }
+
+  // Resumen: ultimo pago (suma de los periodos pagados en la fecha mas reciente), pendiente y total cobrado
+  const todos = pago.periodos ?? []
+  const pagados = todos.filter((p) => p.pagado)
+  const diaPago = (p: Periodo) => String(p.pagado_en ?? '').slice(0, 10)
+  const fechaUlt = pagados.map(diaPago).filter(Boolean).sort().pop() ?? ''
+  const delUltimo = fechaUlt ? pagados.filter((p) => diaPago(p) === fechaUlt) : []
+  const ultimo = delUltimo.reduce((a, p) => a + Number(p.total ?? 0), 0)
+  const cobrado = pagados.reduce((a, p) => a + Number(p.total ?? 0), 0)
+  const pendiente = todos.filter((p) => !p.pagado).reduce((a, p) => a + Number(p.total ?? 0), 0)
   // Se conserva el indice original: la pagina del desprendible lo usa para elegir el periodo
   const lista = (pago.periodos ?? []).map((p, i) => ({ p, i })).filter(({ p }) => !sinMovimiento(p))
 
@@ -43,26 +54,38 @@ export default function MiPago({ pago }: { pago: Pago | null }) {
         <Link href="/avances/desprendible" className="btn btn-o">Imprimir desprendible de pago</Link>
       </div>
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 mb-3">
+        <div style={cajaVerde}>
+          <div className="text-xs text-slate-500">&Uacute;ltimo pago</div>
+          <div className="text-lg font-bold">{fechaUlt ? cop(ultimo) : 'Sin pagos a\u00fan'}</div>
+          {fechaUlt && (
+            <div className="text-xs text-slate-500">{fechaCorta(fechaUlt)}{delUltimo.length > 1 ? ' \u00b7 ' + delUltimo.length + ' per\u00edodos' : ''}</div>
+          )}
+        </div>
+        <div style={caja}>
+          <div className="text-xs text-slate-500">Pendiente por cobrar</div>
+          <div className="text-lg font-bold">{cop(pendiente)}</div>
+          <div className="text-xs text-slate-500">{pendiente > 0 ? 'A\u00fan no pagado' : 'Est\u00e1s al d\u00eda'}</div>
+        </div>
+        <div style={caja}>
+          <div className="text-xs text-slate-500">Total cobrado</div>
+          <div className="text-lg font-bold">{cop(cobrado)}</div>
+        </div>
         {dia > 0 && (
           <div style={caja}>
             <div className="text-xs text-slate-500">Valor por d&iacute;a</div>
-            <div className="text-lg font-bold">{cop(dia)}</div>
+            <div className="text-base font-bold">{cop(dia)}</div>
             <div className="text-xs text-slate-500">{pago.origen_valor === 'contrato' ? 'Seg\u00fan tu contrato firmado' : 'Seg\u00fan tu ficha'}</div>
           </div>
         )}
-        {trabajo > 0 && (
+        {!esDiario && trabajo > 0 && (
           <div style={caja}>
             <div className="text-xs text-slate-500">Valor por trabajo</div>
-            <div className="text-lg font-bold">{cop(trabajo)}</div>
+            <div className="text-base font-bold">{cop(trabajo)}</div>
           </div>
         )}
         <div style={caja}>
-          <div className="text-xs text-slate-500">Adelantos recibidos</div>
-          <div className="text-lg font-bold">{adel > 0 ? cop(adel) : 'Ninguno'}</div>
-        </div>
-        <div style={caja}>
           <div className="text-xs text-slate-500">Fecha de ingreso</div>
-          <div className="text-lg font-bold">{fechaCorta(pago.ingreso)}</div>
+          <div className="text-base font-bold">{fechaCorta(pago.ingreso)}</div>
         </div>
       </div>
       {lista.length > 0 ? (
