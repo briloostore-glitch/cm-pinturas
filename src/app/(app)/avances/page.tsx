@@ -1,12 +1,15 @@
 import Link from 'next/link'
 import { requireModule } from '@/lib/auth'
 import { ACTIVAS, hora, listarObras } from '@/lib/avances'
+import MiPago, { fechaCorta } from '@/components/MiPago'
+import type { Pago } from '@/components/MiPago'
 
 export default async function Avances({ searchParams }: { searchParams: Promise<{ todas?: string }> }) {
   const { todas } = await searchParams
   const { supabase, profile } = await requireModule('avances')
   const rol = String((profile as unknown as { role?: string }).role ?? '')
   const { obras, error } = await listarObras(supabase)
+  const { data: pago } = rol === 'trabajador' ? await supabase.rpc('mi_pago') : { data: null }
   const verTodas = todas === '1'
   const lista = verTodas ? obras : obras.filter((o) => ACTIVAS.includes(o.status))
 
@@ -17,6 +20,7 @@ export default async function Avances({ searchParams }: { searchParams: Promise<
         <Link href={verTodas ? '/avances' : '/avances?todas=1'} className="btn btn-g">{verTodas ? 'Solo activas' : 'Ver también terminadas'}</Link>
       </div>
       {error && <div className="err">{error}</div>}
+      {rol === 'trabajador' && <MiPago pago={(pago as Pago | null) ?? null} />}
       <div className="grid md:grid-cols-2 gap-4">
         {lista.map((o) => (
           <Link key={o.id} href={`/avances/${o.id}`} className="card block hover:shadow-md" style={{ marginBottom: 0 }}>
@@ -26,6 +30,7 @@ export default async function Avances({ searchParams }: { searchParams: Promise<
             </div>
             <p className="text-sm">{o.cliente || 'Sin cliente'}</p>
             {o.direccion && <p className="text-xs text-slate-500">{o.direccion}</p>}
+            {o.start_date && <p className="text-xs text-slate-500">Inicio: {fechaCorta(o.start_date)}</p>}
             <div className="mt-2">
               <div className="flex justify-between text-xs text-slate-500">
                 <span>Avance {o.ultimo_avance ?? 0}%</span>
